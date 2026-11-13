@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Uma carta para você</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#fbe9ea; --bg2:#f1c9d0; --ink:#6b1530; --muted:#8c5362;
+  --paper:#fffaf5; --env-front:#f4d3d6; --env-back:#c9677c; --flap:#ebb6bf;
+  --seal:#9c1c34; --seal-hi:#c93a55; --focus:#c93a55;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg1:#2b1230;--bg2:#14081a;--muted:#c9a0b0;--focus:#ff7d96}
+}
+:root[data-theme="dark"]{--bg1:#2b1230;--bg2:#14081a;--muted:#c9a0b0;--focus:#ff7d96}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(120% 90% at 50% 40%,var(--bg1),var(--bg2));
+  color:var(--muted);font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;overflow-x:hidden;
+}
+.stage{
+  --w:min(86vw,380px);--h:calc(var(--w)*.64);
+  width:var(--w);height:var(--h);margin-top:calc(var(--h)*1.15);position:relative;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.stage>*{position:absolute;left:0;width:100%}
+.back{top:0;height:100%;background:var(--env-back);border-radius:6px;box-shadow:0 18px 36px rgba(60,10,30,.3)}
+.letter{
+  left:6%;width:88%;top:4%;height:92%;background:var(--paper);border-radius:4px;z-index:2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2em;text-align:center;
+  box-shadow:0 2px 10px rgba(60,10,30,.18);will-change:transform;backface-visibility:hidden;
+}
+.front{
+  top:0;height:100%;z-index:3;border-radius:6px;
+  background:linear-gradient(160deg,#f8dcde,var(--env-front));
+  clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%);
+}
+.flap{
+  top:0;height:56%;z-index:4;transform-origin:50% 0;will-change:transform;
+  background:linear-gradient(180deg,var(--flap),#e3a3b0);
+  clip-path:polygon(0 0,100% 0,50% 100%);
+}
+.seal{
+  left:50%;top:56%;width:46px;height:46px;margin:-23px 0 0 -23px;z-index:6;border:0;padding:0;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--seal-hi),var(--seal) 70%);
+  box-shadow:0 3px 8px rgba(40,0,15,.45),inset 0 0 0 3px rgba(255,255,255,.12);cursor:pointer;will-change:transform;
+}
+.seal span{display:block;color:#ffd9de;font-size:22px;line-height:46px;text-align:center;animation:beat 1.8s ease-in-out infinite}
+.opened .seal{pointer-events:none}
+.opened .seal span{animation:none}
+.seal:focus-visible,.again:focus-visible{outline:3px solid var(--focus);outline-offset:4px}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+.te{font-family:"Pinyon Script","Snell Roundhand","Brush Script MT",cursive;font-size:clamp(48px,15vw,72px);line-height:1;color:var(--ink);margin:0;font-weight:400;opacity:0}
+.sub{font-style:italic;font-size:clamp(15px,4.3vw,19px);line-height:1.25;color:#8c5362;margin:0;padding:0 7%;opacity:0}
+.hint{margin:2.2rem 0 0;font-style:italic;font-size:1.15rem;min-height:2.6rem;text-align:center;padding:0 1rem}
+.again{
+  font:inherit;font-size:1.05rem;color:var(--muted);background:none;border:0;border-bottom:1px solid currentColor;
+  padding:.2rem 0;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s;
+}
+.done .again{opacity:1;pointer-events:auto}
+.opened .tap{display:none}
+.by{position:fixed;top:0;left:0;right:0;z-index:10;margin:0;padding:calc(env(safe-area-inset-top,0px) + 1.1rem) 1rem 0;text-align:center;font-style:italic;font-size:1.3rem;color:var(--muted);pointer-events:none}
+.by b{font-family:"Pinyon Script","Snell Roundhand","Brush Script MT",cursive;font-weight:400;font-size:1.7rem;color:var(--seal-hi)}
+.count{margin:.5rem 0 0;font-style:italic;font-size:1.05rem;color:var(--muted);opacity:0;transition:opacity .6s}
+.count b{font-style:normal;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:.04em;color:var(--seal-hi)}
+.done .count{opacity:1}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+</style>
+</head>
+<body>
+
+<p class="by">criado por <b>Kai</b></p>
+
+<div class="stage" id="env" aria-label="Envelope fechado">
+  <div class="back"></div>
+  <div class="letter" id="letter">
+    <p class="te" id="te">Te amo</p>
+    <p class="sub" id="sub">com todo o meu coração</p>
+  </div>
+  <div class="front"></div>
+  <div class="flap" id="flap"></div>
+  <button class="seal" id="seal" aria-label="Abrir a carta"><span>♥</span></button>
+</div>
+
+<p class="hint">
+  <span class="tap">Toque no selo para abrir</span>
+  <button class="again" id="again">Fechar a carta</button>
+</p>
+
+<p class="count">Próxima frase em <b id="t">00:00:00</b></p>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var env=$('env'),seal=$('seal'),again=$('again'),body=document.body;
+  var DUR=2400, anims=null, fwTimers=[];
+
+  /* ---------- uma frase nova a cada dia (muda à meia-noite, no horário local) ---------- */
+  var frases=[
+    'Você é o meu lugar favorito no mundo.',
+    'Com você, até o silêncio é bom.',
+    'Meu coração te escolheu, e continua escolhendo todo dia.',
+    'Você transforma dias comuns em memórias que eu quero guardar.',
+    'Onde você está, é onde eu quero estar.',
+    'Seu sorriso é a minha parte preferida do dia.',
+    'Te amar é a coisa mais fácil que eu já fiz.',
+    'Se eu pudesse escolher de novo, escolheria você outra vez.',
+    'Você é o meu hoje, o meu amanhã e o meu sempre.',
+    'Cada batida do meu coração tem o seu nome.',
+    'Obrigado por existir e por existir ao meu lado.',
+    'Com você, tudo fica mais leve e mais bonito.',
+    'Você é a minha calma no meio da correria.',
+    'Eu te amo mais hoje do que ontem, e menos do que amanhã.',
+    'Seu abraço é o meu abrigo.',
+    'Nem a saudade é capaz de diminuir o que eu sinto por você.',
+    'Você deixou a minha vida mais colorida.',
+    'Eu sou mais feliz desde que você chegou.',
+    'Seu olhar me faz acreditar em tudo de bom.',
+    'Você é a minha melhor história.',
+    'Do seu lado, o tempo passa e o amor só cresce.',
+    'Eu não preciso de muito, só de você.',
+    'Amar você é o meu jeito favorito de ser feliz.',
+    'Você é o motivo de tantos dos meus sorrisos.',
+    'Seja qual for o caminho, eu quero caminhar com você.',
+    'Você é o sonho que eu não quero acordar.',
+    'Meu amor por você não cabe em palavras, mas eu tento todo dia.',
+    'Você é a razão de eu acreditar em amor.',
+    'Tudo em você me encanta, até o que você acha defeito.',
+    'Eu te levo comigo em cada pensamento.',
+    'Que bom que o meu caminho cruzou o seu.'
+  ];
+  function setFrase(){
+    var d=new Date(),dia=Math.floor((d.getTime()-d.getTimezoneOffset()*60000)/864e5);
+    $('sub').textContent=frases[dia%frases.length];
+  }
+  setFrase();
+
+  /* ---------- contador até a próxima frase ---------- */
+  function pad(n){return n<10?'0'+n:''+n}
+  function tick(){
+    var n=new Date(),next=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);
+    var s=Math.max(0,Math.round((next-n)/1000));
+    $('t').textContent=pad(Math.floor(s/3600))+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60);
+    if(s<=1)setTimeout(setFrase,1200);
+  }
+  tick();setInterval(tick,1000);
+
+  /* ---------- animação principal (uma única linha do tempo, só transform/opacity) ---------- */
+  function mk(el,frames){
+    var a=el.animate(frames,{duration:DUR,fill:'both',easing:'linear'});
+    a.pause();a.currentTime=0;return a;
+  }
+  function build(){
+    var spring='cubic-bezier(.3,1.2,.5,1)', rise='cubic-bezier(.4,0,.2,1)';
+    anims=[
+      mk($('flap'),[
+        {offset:0,transform:'perspective(900px) rotateX(0deg)',zIndex:4,easing:'ease-in'},
+        {offset:.15,transform:'perspective(900px) rotateX(90deg)',zIndex:4},
+        {offset:.15,transform:'perspective(900px) rotateX(90deg)',zIndex:1,easing:'ease-out'},
+        {offset:.3,transform:'perspective(900px) rotateX(180deg)',zIndex:1},
+        {offset:1,transform:'perspective(900px) rotateX(180deg)',zIndex:1}
+      ]),
+      mk(seal,[
+        {offset:0,opacity:1,transform:'scale(1)',easing:'ease-out'},
+        {offset:.12,opacity:0,transform:'scale(1.7)'},
+        {offset:1,opacity:0,transform:'scale(1.7)'}
+      ]),
+      mk($('letter'),[
+        {offset:0,transform:'translateY(0) rotate(0deg) scale(1)',zIndex:2},
+        {offset:.2,transform:'translateY(0) rotate(0deg) scale(1)',zIndex:2,easing:rise},
+        {offset:.62,transform:'translateY(-106%) rotate(-1.2deg) scale(1)',zIndex:2,easing:'linear'},
+        {offset:.62,transform:'translateY(-106%) rotate(-1.2deg) scale(1)',zIndex:5,easing:spring},
+        {offset:1,transform:'translateY(-64%) rotate(0deg) scale(1.12)',zIndex:5}
+      ]),
+      mk($('te'),[
+        {offset:0,opacity:0,transform:'translateY(12px)'},
+        {offset:.66,opacity:0,transform:'translateY(12px)',easing:'ease-out'},
+        {offset:.88,opacity:1,transform:'translateY(0)'},
+        {offset:1,opacity:1,transform:'translateY(0)'}
+      ]),
+      mk($('sub'),[
+        {offset:0,opacity:0,transform:'translateY(10px)'},
+        {offset:.74,opacity:0,transform:'translateY(10px)',easing:'ease-out'},
+        {offset:.95,opacity:1,transform:'translateY(0)'},
+        {offset:1,opacity:1,transform:'translateY(0)'}
+      ])
+    ];
+    anims[2].onfinish=function(){ if(this.playbackRate>0)body.classList.add('done') };
+  }
+  function run(dir){
+    if(!anims)build();
+    anims.forEach(function(a){a.playbackRate=dir;a.play()});
+  }
+
+  /* ---------- fogos de artifício de corações ---------- */
+  var cv=$('fx'),ctx=cv.getContext('2d'),W=0,H=0;
+  var heart=new Path2D('M0 .35C-.6-.1-.35-.6 0-.25C.35-.6.6-.1 0 .35Z');
+  var colors=['#ff4d6d','#ff8fa3','#ffb3c1','#ffd166','#ff5d8f','#e0245e','#ff9e7a'];
+  var parts=[],rockets=[],raf=0,last=0;
+  function size(){
+    var d=Math.min(window.devicePixelRatio||1,2);
+    W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0);
+  }
+  function pick(){return colors[(Math.random()*colors.length)|0]}
+  function launch(){
+    var tx=W*(.15+Math.random()*.7),ty=H*(.14+Math.random()*.3),sx=W*(.5+(Math.random()-.5)*.25);
+    rockets.push({sx:sx,sy:H,tx:tx,ty:ty,t:0,d:.55+Math.random()*.2,c:pick(),x:sx,y:H});
+    start();
+  }
+  function explode(x,y,c){
+    var n=30+((Math.random()*10)|0),i,a,s;
+    for(i=0;i<n;i++){
+      a=i/n*Math.PI*2+Math.random()*.25;s=130+Math.random()*190;
+      parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,dec:.4+Math.random()*.3,
+        sz:10+Math.random()*14,r:Math.random()*.8-.4,c:Math.random()<.65?c:pick()});
+    }
+    for(i=0;i<12;i++){
+      a=Math.random()*Math.PI*2;s=40+Math.random()*80;
+      parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,dec:.6,sz:8+Math.random()*6,r:0,c:'#fff3b0'});
+    }
+  }
+  function frame(now){
+    var dt=Math.min((now-last)/1000,.05);last=now;
+    ctx.clearRect(0,0,W,H);
+    var i,p,r;
+    for(i=rockets.length-1;i>=0;i--){
+      r=rockets[i];r.t+=dt/r.d;
+      var e=1-Math.pow(1-Math.min(r.t,1),2.2);
+      r.x=r.sx+(r.tx-r.sx)*e;r.y=r.sy+(r.ty-r.sy)*e;
+      ctx.globalAlpha=.9;ctx.fillStyle=r.c;ctx.beginPath();ctx.arc(r.x,r.y,3,0,6.283);ctx.fill();
+      ctx.globalAlpha=.35;ctx.beginPath();ctx.arc(r.x,r.y+10,2,0,6.283);ctx.fill();
+      if(r.t>=1){explode(r.x,r.y,r.c);rockets.splice(i,1)}
+    }
+    for(i=parts.length-1;i>=0;i--){
+      p=parts[i];
+      p.vx*=1-1.5*dt;p.vy=p.vy*(1-1.5*dt)+150*dt;
+      p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=p.dec*dt;
+      if(p.life<=0){parts.splice(i,1);continue}
+      ctx.globalAlpha=Math.min(1,p.life*1.8);ctx.fillStyle=p.c;
+      var s=p.sz*(.55+.45*p.life);
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r*(1-p.life)*3);ctx.scale(s,s);ctx.fill(heart);ctx.restore();
+    }
+    ctx.globalAlpha=1;
+    if(parts.length||rockets.length){raf=requestAnimationFrame(frame)}
+    else{raf=0;ctx.clearRect(0,0,W,H)}
+  }
+  function start(){ if(!raf){last=performance.now();raf=requestAnimationFrame(frame)} }
+  function fireworks(){
+    size();
+    [0,260,520,820,1120,1450,1800].forEach(function(ms){fwTimers.push(setTimeout(launch,ms))});
+  }
+  function stopFireworks(){fwTimers.forEach(clearTimeout);fwTimers=[]}
+
+  /* ---------- abrir / fechar ---------- */
+  var isOpen=false;
+  function open(){
+    if(isOpen)return;isOpen=true;
+    body.classList.add('opened');env.setAttribute('aria-label','Envelope aberto: te amo');
+    run(1);
+    stopFireworks();fwTimers.push(setTimeout(fireworks,1000));
+  }
+  function close(){
+    if(!isOpen)return;isOpen=false;
+    stopFireworks();body.classList.remove('done');
+    run(-1);
+    setTimeout(function(){
+      if(!isOpen){body.classList.remove('opened');env.setAttribute('aria-label','Envelope fechado')}
+    },DUR);
+  }
+  seal.addEventListener('click',function(e){e.stopPropagation();open()});
+  env.addEventListener('click',open);
+  again.addEventListener('click',close);
+  addEventListener('resize',function(){if(raf)size()});
+  size();
+})();
+</script>
+</body>
+</html>
